@@ -1,6 +1,6 @@
 #This is a simple makefile for building, cleaning and running Subscription.
 
-FLAGS = -Wall -o maker.o
+FLAGS = -Wall -lm -lpng -o maker.o
 CC = gcc
 FILE = pngmaker.c
 

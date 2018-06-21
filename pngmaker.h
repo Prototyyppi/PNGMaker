@@ -4,12 +4,20 @@
 
 #ifndef __PNGMaker_H__
 #define __PNGMaker_H__
-#include <stdint.h>
 
-/* Calculate crc for data */
-int crc32();
 
-/* Wrapper for crc calculation */
-int calculate_crc(uint8_t* , int);
+/*
+ * Function for creating random image from /dev/urandom
+ * Arguments: None
+ * Return value: EXIT_SUCCESS on success, EXIT_FAILURE on failed
+ */
+int random_picture();
+
+/*
+ * Function for initializing png file.
+ * Arguments: char** argv, FILE* pic
+ * Return value: EXIT_SUCCESS on success, EXIT_FAILURE on failed
+ */
+int initialize_png(char**, FILE*);
 
 #endif /* __PNGMaker_H__ */
