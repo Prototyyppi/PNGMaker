@@ -86,6 +86,108 @@ int random_picture() {
 	return EXIT_SUCCESS;
 }
 
+/*
+ * Function for creating random image from /dev/urandom Pictures can be larger
+ * Arguments: How many rectangles
+ * Return value: EXIT_SUCCESS on success, EXIT_FAILURE on failed
+ */
+int random_sized_picture_greyscale(int size) {
+	FILE* source;
+	unsigned char* to_set = malloc(sizeof(unsigned char));
+	png_bytep row;
+
+	row = malloc(3 * width * sizeof(png_byte));
+	if (row == NULL) {
+		printf("Malloc failed");
+		return EXIT_FAILURE;
+	}
+
+	source = fopen("/dev/urandom", "rb");
+	if (source == NULL) {
+		printf("Error opening random source");
+		return EXIT_FAILURE;
+	}
+	size = width / size;
+	int j = 0;
+	for (int i = 0; i < height / size; i++) {
+		for (j = 0; j < width / size; j++){
+			fread(to_set, 1, 1, source);
+			memset(row+j*size*3, *to_set, size*3);
+		}
+		for (int k = 0; k < size; k++)
+			png_write_row(png_ptr, row);
+	}
+
+	png_write_end(png_ptr, info_ptr);
+
+	if (source != NULL)
+		fclose(source);
+	if (row != NULL)
+		free(row);
+	if (to_set != NULL)
+		free(to_set);
+	return EXIT_SUCCESS;
+}
+
+/*
+ * Function for creating random image from /dev/urandom Pictures can be larger
+ * Arguments: How many rectangles
+ * Return value: EXIT_SUCCESS on success, EXIT_FAILURE on failed
+ */
+int random_sized_picture_colorful(int size) {
+	FILE* source;
+	unsigned char* to_set_byte1 = malloc(sizeof(unsigned char));
+	unsigned char* to_set_byte2 = malloc(sizeof(unsigned char));
+	unsigned char* to_set_byte3 = malloc(sizeof(unsigned char));
+	png_bytep row;
+
+	row = malloc(3 * width * sizeof(png_byte));
+	if (row == NULL) {
+		printf("Malloc failed");
+		return EXIT_FAILURE;
+	}
+
+	source = fopen("/dev/urandom", "rb");
+	if (source == NULL) {
+		printf("Error opening random source");
+		return EXIT_FAILURE;
+	}
+	size = width / size;
+	int j = 0;
+	int x = 0;
+	for (int i = 0; i < height / size; i++) {
+
+		for (j = 0; j <= width / size; j++) {
+			fread(to_set_byte1, 1, 1, source);
+			fread(to_set_byte2, 1, 1, source);
+			fread(to_set_byte3, 1, 1, source);
+			for (; x < j*size*3; x += 3) {
+				memset(row+x+0, *to_set_byte1, 1);
+				memset(row+x+1, *to_set_byte2, 1);
+				memset(row+x+2, *to_set_byte3, 1);
+			}
+		}
+		for (int k = 0; k < size; k++){
+			png_write_row(png_ptr, row);
+		}
+		x = 0;
+	}
+
+	png_write_end(png_ptr, info_ptr);
+
+	if (source != NULL)
+		fclose(source);
+	if (row != NULL)
+		free(row);
+	if (to_set_byte1 != NULL)
+		free(to_set_byte1);
+	if (to_set_byte2 != NULL)
+		free(to_set_byte2);
+	if (to_set_byte3 != NULL)
+		free(to_set_byte3);
+	return EXIT_SUCCESS;
+}
+
 int main(int argc, char** argv) {
 	int ret, mode = 1;
 	
@@ -102,7 +204,7 @@ int main(int argc, char** argv) {
 
 
 	if (argc >= 3) {
-		mode = strtoul(argv[2], NULL, 10);
+		mode = strtoul(argv[3], NULL, 10);
 		if (mode == 0) {
 			printf("Error with mode parameter");
 			return EXIT_FAILURE;
@@ -113,11 +215,26 @@ int main(int argc, char** argv) {
 		case 1:
 			random_picture();
 			break;
+		case 2:
+			if (height != width || width < 5) {
+				printf("Not supported\n");
+				goto end;
+			}
+			random_sized_picture_greyscale(5);
+			break;
+		case 3:
+			if (height != width || width < 5) {
+				printf("Not supported\n");
+				goto end;
+			}
+			random_sized_picture_colorful(5);
+			break;
 		default:
 			random_picture();
 			break;
 	}
 
+end:
 	if (pic)
 		fclose(pic);
 	if (info_ptr != NULL)
