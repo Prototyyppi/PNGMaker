@@ -70,20 +70,27 @@ int random_picture() {
 	source = fopen("/dev/urandom", "rb");
 	if (source == NULL) {
 		printf("Error opening random source");
-		return EXIT_FAILURE;
+		goto exit_func;
 	}
 
-	for (int i=0 ; i<height ; i++) {
+	for (int i = 0; i < height; i++) {
 		fread(row, 1, width*3, source);
 		png_write_row(png_ptr, row);
 	}
 
 	png_write_end(png_ptr, NULL);
+
 	if (source != NULL)
 		fclose(source);
 	if (row != NULL)
 		free(row);
 	return EXIT_SUCCESS;
+exit_func:
+	if (source != NULL)
+		fclose(source);
+	if (row != NULL)
+		free(row);
+	return EXIT_FAILURE;
 }
 
 /*
@@ -200,10 +207,10 @@ int main(int argc, char** argv) {
 	pic = fopen("pic.png", "wb");
 	ret = initialize_png(argv, pic);
 	if (ret != EXIT_SUCCESS)
-		EXIT_FAILURE;
+		return EXIT_FAILURE;
 
 
-	if (argc >= 3) {
+	if (argc > 3) {
 		mode = strtoul(argv[3], NULL, 10);
 		if (mode == 0) {
 			printf("Error with mode parameter");
@@ -218,14 +225,14 @@ int main(int argc, char** argv) {
 		case 2:
 			if (height != width || width < 5) {
 				printf("Not supported\n");
-				goto end;
+				break;
 			}
 			random_sized_picture_greyscale(5);
 			break;
 		case 3:
 			if (height != width || width < 5) {
 				printf("Not supported\n");
-				goto end;
+				break;
 			}
 			random_sized_picture_colorful(5);
 			break;
@@ -234,7 +241,7 @@ int main(int argc, char** argv) {
 			break;
 	}
 
-end:
+
 	if (pic)
 		fclose(pic);
 	if (info_ptr != NULL)
