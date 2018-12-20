@@ -10,7 +10,6 @@ Create random png pictures
   * 1 - Picture with each pixel is randomized
   * 2 - Large color squares and as greyscale
   * 3 - Large color squares using colors
-* example: ./parser text.txt
 
 ![Image](Samples/250x250_colored.png "Example output")
 
